@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/journal'
+require 'optparse'
+
+module JournalCli
+  def self.parse
+    options = {}
+    OptionParser.new do |opts|
+      opts.banner = "Usage: jou [options]"
+
+      opts.on("-a description", "Add an entry") do |entry|
+        options[:add] = entry
+      end
+      opts.on("-f file", "Temporarily use another journal file") do |file|
+        options[:file] = file
+      end
+    end.parse!
+
+    raise OptionParser::MissingArgument if options[:add].nil?
+
+    # The -f parameter is required until a config file solution is available
+    raise OptionParser::MissingArgument if options[:file].nil?
+
+    j = Journal.new(options[:file])
+    j.serialize
+    j.add(options[:add])
+    j.sort
+    j.deserialize
+  end
+end
+
+JournalCli.parse
