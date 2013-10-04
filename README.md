@@ -9,17 +9,24 @@ jou automatically creates a new journal entry for the finished task.
 
 ### Configuration
 The first time you start jou, you will have to specify the path to your journal file.  
-Alternatively, you can edit `~/.config/jou/config.yml`
+Alternatively, you can edit `~/.jou`
 ### Usage
-    $ jou -h
+    $ bin/jou -h
     Usage: jou [options]
-        -a description                   Add an entry
-        -f file                          Temporarily use another journal file  
+        -a, --add-entry String           Add an entry
+        -s, --set-journal path/to/file   Set a new default file to write to and read from
+        -h, --help, --usage              Show this message
+
 
 Adding a journal entry is as simple as:
 
     $ jou -a "Today I tried out jou"
 
+Setting a new journal file to use:
+
+    $ jou --set-journal "/home/user/Documents/Journal.md"
+
+Note that the ~ character is currently not supported. Specify the absolute path here.
 ### Output format
 
     ### 13.10.03

@@ -5,33 +5,47 @@ require_relative '../lib/journal_config.rb'
 require 'optparse'
 
 module JournalCli
+  @options = {}
+
   def self.parse
-    options = {}
+
+    # Set default values for cli options
+    @options[:file] = JournalConfig.config[:journal_file]
+
+    # Parse cli options
     OptionParser.new do |opts|
       opts.banner = "Usage: jou [options]"
 
-      opts.on("-a description", "Add an entry") do |entry|
-        options[:add] = entry
+      opts.on("-a string", String, "Add an entry") do |entry|
+        @options[:add] = entry
       end
-      opts.on("-f file", "Temporarily use another journal file") do |file|
-        options[:file] = file
+      opts.on("-s", "--set-journal path/to/file", String, "Set a new default file to write to and read from") do |file|
+        @options[:file] = file
+      end
+      opts.on_tail("-h", "--help", "--usage", "Show this message") do |setting|
+        puts opts.help
+        exit
       end
     end.parse!
 
-    raise OptionParser::MissingArgument if options[:add].nil?
+    if @options[:file] != JournalConfig.config[:journal_file]
+      # Set a new journal file
+      config_file = Dir.home + "/.jou"
+      JournalConfig.config[:journal_file] = @options[:file] if @options[:file]
+      JournalConfig.create(config_file)
+    elsif @options[:add]
+      j = Journal.new(JournalConfig.config[:journal_file])
 
-    # The -f parameter is required until a config file solution is available
-    raise OptionParser::MissingArgument if options[:file].nil?
+      # Get current content if the file exists
+      j.serialize if File.exist?(JournalConfig.config[:journal_file])
 
-    j = Journal.new(options[:file])
+      j.add(options[:add]) # Add a new journal entry
+      puts "Adding entry to journal: #{options[:add]}"
 
-    # Since there is no file to read on the first run, skip reading it
-    j.serialize unless JournalConfig.config[:first_run]
-
-    j.add(options[:add])
-    puts "Adding entry to journal: #{options[:add]}"
-    j.reverse_sort
-    j.deserialize
+      # Sort and save
+      j.reverse_sort
+      j.deserialize
+    end
   end
 end
 
