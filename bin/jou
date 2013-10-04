@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/journal'
+require_relative '../lib/jou'
+require_relative '../lib/journal_config.rb'
 require 'optparse'
 
 module JournalCli
@@ -23,9 +24,12 @@ module JournalCli
     raise OptionParser::MissingArgument if options[:file].nil?
 
     j = Journal.new(options[:file])
-    j.serialize
+
+    # Since there is no file to read on the first run, skip reading it
+    j.serialize unless JournalConfig.config[:first_run]
+
     j.add(options[:add])
-    j.sort
+    j.reverse_sort
     j.deserialize
   end
 end
