@@ -29,6 +29,7 @@ module JournalCli
     j.serialize unless JournalConfig.config[:first_run]
 
     j.add(options[:add])
+    puts "Adding entry to journal: #{options[:add]}"
     j.reverse_sort
     j.deserialize
   end

@@ -13,6 +13,7 @@ class Journal < Hash
 
     # On first run, set first_run to false
     JournalConfig.config[:first_run] = false if JournalConfig.config[:first_run]
+    JournalConfig.create(config_file)
   end
 
   def reverse_sort
@@ -63,15 +64,5 @@ class Journal < Hash
     today = Date.today.strftime("%y.%m.%d").to_sym
     entries = self[today] || []
     self[today] = entries.push(string)
-    puts "Adding entry to journal: #{string}"
   end
 end
-
-j = Journal.new()
-j.serialize
-j.add("hi!")
-j.reverse_sort
-j.deserialize
-
-p j
-
