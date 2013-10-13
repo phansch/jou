@@ -39,8 +39,8 @@ module JournalCli
       # Get current content if the file exists
       j.serialize if File.exist?(JournalConfig.config[:journal_file])
 
-      j.add(options[:add]) # Add a new journal entry
-      puts "Adding entry to journal: #{options[:add]}"
+      j.add(@options[:add]) # Add a new journal entry
+      puts "Adding entry to journal: #{@options[:add]}"
 
       # Sort and save
       j.reverse_sort
