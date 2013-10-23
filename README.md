@@ -11,7 +11,7 @@ jou automatically creates a new journal entry for the finished task.
 The first time you start jou, you will have to specify the path to your journal file.  
 Alternatively, you can edit `~/.jou`
 ### Usage
-    $ bin/jou -h
+    $ jou -h
     Usage: jou [options]
         -a, --add-entry String           Add an entry
         -s, --set-journal path/to/file   Set a new default file to write to and read from
