@@ -47,6 +47,10 @@ module JournalCli
       j.deserialize
     else
       j = Journal.new(JournalConfig.config[:journal_file])
+
+      # Get current content if the file exists
+      j.serialize if File.exist?(JournalConfig.config[:journal_file])
+
       puts j.get_recent(1)
     end
   end
