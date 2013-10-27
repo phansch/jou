@@ -6,13 +6,13 @@ describe 'Journal' do
     # Create a basic temporary journal file
     @journal_file = Tempfile.new('jou_test')
     @journal = Journal.new(@journal_file.path)
+
+    @today = Date.today.strftime("%y.%m.%d").to_sym
   end
 
   it "adds entries to the journal hash" do
     @journal.add("hi!")
-    today = Date.today.strftime("%y.%m.%d").to_sym
-
-    @journal.should == {today => ["hi!"]}
+    @journal.should == {@today => ["hi!"]}
   end
 
   it "correctly (de)serializes the journal file" do
@@ -28,7 +28,12 @@ describe 'Journal' do
   end
 
   it "creates a hash from a properly formatted journal file" do
-    j = Journal.new(@journal_file.path) # Load previous journal file
-    j.should be_a(Hash)
+    @journal.should be_a(Hash)
+  end
+
+  it "returns a string with entries from today" do
+    @journal.add("hi!")
+    @journal.add("ho!")
+    @journal.get_recent(1).should == "### 13.10.27­\n * hi!\n * ho!\n\n"
   end
 end

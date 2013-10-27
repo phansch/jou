@@ -63,6 +63,23 @@ class Journal < Hash
   def add(string)
     today = Date.today.strftime("%y.%m.%d").to_sym
     entries = self[today] || []
+
     self[today] = entries.push(string)
   end
+
+  def get_recent(limit = 5)
+    out = ""
+
+    self.each_pair do |date, entries|
+      break if limit == 0
+      out << "### #{date}­\n"
+      entries.each { |e| out << " * #{e}\n" }
+      out << "\n"
+      limit -= 1
+    end
+
+    out
+  end
+
+
 end
