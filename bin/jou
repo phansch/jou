@@ -1,0 +1,57 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'methadone'
+require_relative '../lib/jou.rb'
+require_relative '../lib/jou/journal_config.rb'
+
+class App
+  include Methadone::Main
+  include Methadone::CLILogging
+
+  main do |add, entry|
+    if options[:'set-temp']
+      journal_path = "test.md"
+    else
+      journal_path = JournalConfig.config[:journal_file]
+    end
+
+    if add == "add"
+      j = Journal.new(journal_path)
+
+      # Get current content if the file exists
+      j.serialize if File.exist?(journal_path)
+
+      j.add(entry)
+      puts "Adding entry to journal: #{entry}"
+
+      # Sort and save
+      j.reverse_sort
+      j.deserialize
+
+      p journal_path
+    else
+      j = Journal.new(journal_path)
+      p journal_path
+
+      # Get current content if the file exists
+      j.serialize if File.exist?(journal_path)
+
+      puts j.get_recent(1)
+    end
+  end
+
+  description "one line description of your app"
+  on("-s", "--set-journal", "Set a new default file to write to and read from")
+  on("-t", "--set-temp", "Set a file to write to and read from.")
+
+
+  arg :add, :optional
+  arg :entry, :optional
+
+  version Jou::VERSION
+
+  use_log_level_option
+
+  go!
+end
