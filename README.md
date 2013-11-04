@@ -4,7 +4,7 @@
 Jou is a simple command line utility that helps with maintaining a journal file in markdown syntax.
 
 I personally use jou together with git hooks. Whenever a commit is created, 
-jou automatically creates a new journal entry for the finished task.
+jou automatically creates a new journal entry for the commit.
 
 ### Installation
 
