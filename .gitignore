@@ -1,4 +1,10 @@
+.DS_Store
+results.html
+html
+
+### Ruby ###
 *.gem
+*.lock
 *.rbc
 .bundle
 .config

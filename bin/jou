@@ -1,59 +1,59 @@
 #!/usr/bin/env ruby
+require 'methadone'
+require_relative '../lib/jou.rb'
+require_relative '../lib/jou/journal_config.rb'
 
-require_relative '../lib/jou'
-require_relative '../lib/journal_config.rb'
-require 'optparse'
+class App
+  include Methadone::Main
 
-module JournalCli
-  @options = {}
-
-  def self.parse
-
-    # Set default values for cli options
-    @options[:file] = JournalConfig.config[:journal_file]
-
-    # Parse cli options
-    OptionParser.new do |opts|
-      opts.banner = "Usage: jou [options]"
-
-      opts.on("-a string", String, "Add an entry") do |entry|
-        @options[:add] = entry
-      end
-      opts.on("-s", "--set-journal path/to/file", String, "Set a new default file to write to and read from") do |file|
-        @options[:file] = file
-      end
-      opts.on_tail("-h", "--help", "--usage", "Show this message") do |setting|
-        puts opts.help
-        exit
-      end
-    end.parse!
-
-    if @options[:file] != JournalConfig.config[:journal_file]
-      # Set a new journal file
+  main do
+    if options[:'set-perm'] != JournalConfig.config[:journal_file]
       config_file = Dir.home + "/.jou"
-      JournalConfig.config[:journal_file] = @options[:file] if @options[:file]
+      JournalConfig.config[:journal_file] = options[:'set-perm'] if options[:'set-perm']
       JournalConfig.create(config_file)
-    elsif @options[:add]
-      j = Journal.new(JournalConfig.config[:journal_file])
+    end
 
-      # Get current content if the file exists
-      j.serialize if File.exist?(JournalConfig.config[:journal_file])
+    if options[:'set-temp']
+      JournalConfig.config[:journal_file] = options[:'set-temp']
+    end
 
-      j.add(@options[:add]) # Add a new journal entry
-      puts "Adding entry to journal: #{@options[:add]}"
+    if options[:'add-entry']
+      self.add_entry(options[:'add-entry'])
+    end
 
-      # Sort and save
-      j.reverse_sort
-      j.deserialize
-    else
-      j = Journal.new(JournalConfig.config[:journal_file])
-
-      # Get current content if the file exists
-      j.serialize if File.exist?(JournalConfig.config[:journal_file])
-
-      puts j.get_recent(1)
+    if options.empty?
+      self.print_recent
     end
   end
-end
 
-JournalCli.parse
+  def self.print_recent
+    j = Journal.new(JournalConfig.config[:journal_file])
+    # Get current content if the file exists
+    j.serialize if File.exist?(JournalConfig.config[:journal_file])
+
+    puts j.get_recent(1)
+  end
+
+  def self.add_entry(string)
+    j = Journal.new(JournalConfig.config[:journal_file])
+
+    # Get current content if the file exists
+    j.serialize if File.exist?(JournalConfig.config[:journal_file])
+
+    j.add(string)
+    puts "Adding entry to journal: #{string}"
+
+    # Sort and save
+    j.reverse_sort
+    j.deserialize
+  end
+
+  description "Jou is a simple command line utility that helps with maintaining a journal file in markdown syntax."
+  on("-a", "--add-entry VALUE", "Add an entry")
+  on("-s", "--set-perm VALUE", "Set a new default file to write to and read from.")
+  on("-t", "--set-temp VALUE", "Set a file to write to without overwriting the config file.")
+
+  version Jou::VERSION
+
+  go!
+end

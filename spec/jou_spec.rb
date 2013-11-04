@@ -34,6 +34,6 @@ describe 'Journal' do
   it "returns a string with entries from today" do
     @journal.add("hi!")
     @journal.add("ho!")
-    @journal.get_recent(1).should == "### 13.10.27­\n * hi!\n * ho!\n\n"
+    @journal.get_recent(1).should == "### #{@today}\n * hi!\n * ho!\n\n"
   end
 end
