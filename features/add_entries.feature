@@ -5,6 +5,7 @@ Feature: Add journal entries
 
 	Scenario: Add entry
 		Given an empty file named "test.md"
-		When I run `jou add "Example" -t "test.md"`
+		When I run `jou -a "Example" -t "test.md"`
 		Then the file "test.md" should contain "Example"
 		And the file "test.md" should not contain "Hello"
+		And the output should contain exactly "Adding entry to journal: Example\n"

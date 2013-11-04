@@ -1,57 +1,60 @@
 #!/usr/bin/env ruby
 
-require 'optparse'
 require 'methadone'
 require_relative '../lib/jou.rb'
 require_relative '../lib/jou/journal_config.rb'
 
 class App
   include Methadone::Main
-  include Methadone::CLILogging
 
-  main do |add, entry|
-    if options[:'set-temp']
-      journal_path = "test.md"
-    else
-      journal_path = JournalConfig.config[:journal_file]
+  main do
+    if options[:'set-perm'] != JournalConfig.config[:journal_file]
+      config_file = Dir.home + "/.jou"
+      JournalConfig.config[:journal_file] = options[:'set-perm'] if options[:'set-perm']
+      JournalConfig.create(config_file)
     end
 
-    if add == "add"
-      j = Journal.new(journal_path)
+    if options[:'set-temp']
+      JournalConfig.config[:journal_file] = options[:'set-temp']
+    end
 
-      # Get current content if the file exists
-      j.serialize if File.exist?(journal_path)
+    if options[:'add-entry']
+      self.add_entry(options[:'add-entry'])
+    end
 
-      j.add(entry)
-      puts "Adding entry to journal: #{entry}"
-
-      # Sort and save
-      j.reverse_sort
-      j.deserialize
-
-      p journal_path
-    else
-      j = Journal.new(journal_path)
-      p journal_path
-
-      # Get current content if the file exists
-      j.serialize if File.exist?(journal_path)
-
-      puts j.get_recent(1)
+    if options.empty?
+      self.print_recent
     end
   end
 
-  description "one line description of your app"
-  on("-s", "--set-journal", "Set a new default file to write to and read from")
-  on("-t", "--set-temp", "Set a file to write to and read from.")
+  def self.print_recent
+    j = Journal.new(JournalConfig.config[:journal_file])
+      # Get current content if the file exists
+      j.serialize if File.exist?(JournalConfig.config[:journal_file])
 
+      puts j.get_recent(1)
+  end
 
-  arg :add, :optional
-  arg :entry, :optional
+  def self.add_entry(string)
+    j = Journal.new(JournalConfig.config[:journal_file])
+
+    # Get current content if the file exists
+    j.serialize if File.exist?(JournalConfig.config[:journal_file])
+
+    j.add(string)
+    puts "Adding entry to journal: #{string}"
+
+    # Sort and save
+    j.reverse_sort
+    j.deserialize
+  end
+
+  description "Jou is a simple command line utility that helps with maintaining a journal file in markdown syntax."
+  on("-a", "--add-entry VALUE", "Add an entry")
+  on("-s", "--set-perm VALUE", "Set a new default file to write to and read from.")
+  on("-t", "--set-temp VALUE", "Set a file to write to without overwriting the config file.")
 
   version Jou::VERSION
-
-  use_log_level_option
 
   go!
 end

@@ -40,7 +40,6 @@ class Journal < Hash
     rescue Errno::ENOENT => e
       puts e.message
     end
-
   end
 
   # Converts the hash to a markdown file
@@ -73,7 +72,8 @@ class Journal < Hash
 
     self.each_pair do |date, entries|
       break if limit == 0
-      out << "### #{date}­\n"
+
+      out << "### #{date}\n"
       entries.each { |e| out << " * #{e}\n" }
       out << "\n"
       limit -= 1

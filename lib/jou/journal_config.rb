@@ -6,7 +6,7 @@ module JournalConfig
 
   # Set defaults values
   @config = {
-    :journal_file => Dir.home + "/Documents/journal.md",
+    :journal_file => Dir.home + "/Documents/Journal.md",
     :first_run => true
   }
   @valid_config_keys = @config.keys
