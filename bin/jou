@@ -7,9 +7,12 @@ class App
   include Methadone::Main
 
   main do
-    if options[:'set-perm'] != JournalConfig.config[:journal_file]
+    self.use_config
+
+    if options[:'set-perm'] && options[:'set-perm'] != JournalConfig.config[:journal_file]
       config_file = Dir.home + "/.jou"
-      JournalConfig.config[:journal_file] = options[:'set-perm'] if options[:'set-perm']
+      JournalConfig.configure_with(config_file)
+      JournalConfig.config[:journal_file] = options[:'set-perm']
       JournalConfig.create(config_file)
     end
 
@@ -24,6 +27,11 @@ class App
     if options.empty?
       self.print_recent
     end
+  end
+
+  def self.use_config
+    config_file = Dir.home + "/.jou"
+    JournalConfig.configure_with(config_file)
   end
 
   def self.print_recent

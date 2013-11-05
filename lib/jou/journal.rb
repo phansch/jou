@@ -2,20 +2,22 @@ require 'date'
 require_relative 'journal_config'
 
 class Journal < Hash
-  def initialize(active_file = nil)
-    config_setup(active_file)
-    @journal_file = active_file
+  def initialize(active_journal)
+    config_setup(active_journal)
+    @journal_file = active_journal
   end
 
-  def config_setup(file = nil)
-    # Create a new config file on first run
+  def config_setup(file)
+    config_file = Dir.home + "/.jou"
+
     if JournalConfig.config[:first_run]
-      config_file = Dir.home + "/.jou"
-      JournalConfig.create(config_file) unless File.exists?(config_file)
-      JournalConfig.configure_with(config_file)
+      # Create a new config file on first run
       JournalConfig.config[:first_run] = false
-      JournalConfig.config[:journal_file] = file if file
+      JournalConfig.config[:journal_file] = file
+      JournalConfig.create(config_file)
     end
+
+    JournalConfig.configure_with(config_file)
   end
 
   def reverse_sort
@@ -40,6 +42,7 @@ class Journal < Hash
     rescue Errno::ENOENT => e
       puts e.message
     end
+
   end
 
   # Converts the hash to a markdown file
